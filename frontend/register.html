@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - Stock Portfolio Visualizer</title>
+    <!-- Analytics removed: no cookies or trackers loaded -->
+
+    <!-- SEO Meta Tags -->
+    <meta
+      name="description"
+      content="Create a new account with Stock Portfolio Visualizer to start managing and tracking your stock investments."
+    />
+    <meta
+      name="keywords"
+      content="stock portfolio, stock visualizer, investment management, register, sign up"
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://stockportfolio.pro/register" />
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="Register - Stock Portfolio Visualizer" />
+    <meta
+      property="og:description"
+      content="Create a new account with Stock Portfolio Visualizer to start managing and tracking your stock investments."
+    />
+    <meta property="og:url" content="https://stockportfolio.pro/register" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://stockportfolio.pro/images/og-register.jpg"
+    />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta
+      name="twitter:title"
+      content="Register - Stock Portfolio Visualizer"
+    />
+    <meta
+      name="twitter:description"
+      content="Create a new account with Stock Portfolio Visualizer to start managing and tracking your stock investments."
+    />
+    <meta
+      name="twitter:image"
+      content="https://stockportfolio.pro/images/twitter-register.jpg"
+    />
+
+    <!-- Author and Language Meta Tags -->
+    <meta name="author" content="Stock Portfolio Visualizer" />
+    <meta name="language" content="en" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="/Media/icon.png" />
+
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="stylesheet" href="css/register.css" />
+    </head>
+  <body class="glass">
+  <div class="waves"><div class="wave w1"></div><div class="wave w2"></div><div class="wave w3"></div></div>
+  <div id="loading-overlay" class="loading-overlay" hidden aria-live="polite" aria-busy="true">
+    <div class="loading-panel"><div class="spinner"></div><div class="loading-text">Loading.</div></div>
+  </div>
+  <header class="navbar" role="banner">
+    <div class="brand">
+      <img src="/Media/icon.png" alt="Logo" class="brand-icon" />
+      <span class="brand-name">stockportfolio.pro</span>
+    </div>
+  </header>
+  <main class="container register-shell">
+    <div class="card register-card">
+      <h1 class="register-heading">Register</h1>
+      <form id="register-form">
+        <label for="name">Full Name</label>
+        <input type="text" id="name" required class="apikey" autocomplete="name" />
+
+        <label for="email">Email</label>
+        <input type="email" id="email" required class="apikey" autocomplete="email" />
+
+        <label for="password">Password</label>
+        <input type="password" id="password" required class="apikey" autocomplete="new-password" />
+
+        <button type="submit" class="btn btn-primary register-button">Start subscription</button>
+      </form>
+      <p class="register-note">Already have an account? <a href="login.html">Login here</a>.</p>
+      <div id="error-message" class="error-message" role="alert"></div>
+      <div id="success-message" class="success-message" role="status"></div>
+    </div>
+  </main>
+  <div class="container">
+    <footer class="landing-footer">
+      <a class="footer-brand" href="index.html">c 2025 stockportfolio.pro. All rights reserved.</a>
+      <div class="footer-links">
+        <a href="privacy.html">Privacy</a>
+        <a href="terms.html">Terms</a>
+        <a href="support.html">Support</a>
+        <a href="support.html#contact-info">Contact</a>
+      </div>
+    </footer>
+  </div>
+  <script src="https://js.stripe.com/v3/"></script>
+  <script src="script.js"></script>
+  <script src="js/register.js"></script>
+</body>
+</html>

@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>stockportfolio.pro</title>
+
+    <!-- Analytics removed: no cookies or trackers loaded -->
+
+    <!-- SEO Meta Tags -->
+    <meta
+      name="description"
+      content="Visualize and manage your stock portfolio with detailed charts and analytics on Stock Portfolio Visualizer."
+    />
+    <meta
+      name="keywords"
+      content="stock portfolio, stock visualizer, investment management, stock analysis, dashboard"
+    />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://stockportfolio.pro/dashboard" />
+
+    <!-- Open Graph Meta Tags -->
+    <meta property="og:title" content="stockportfolio.pro" />
+    <meta
+      property="og:description"
+      content="Visualize and manage your stock portfolio with detailed charts and analytics on Stock Portfolio Visualizer."
+    />
+    <meta property="og:url" content="https://stockportfolio.pro/dashboard" />
+    <meta property="og:type" content="website" />
+    <meta
+      property="og:image"
+      content="https://stockportfolio.pro/images/og-dashboard.jpg"
+    />
+
+    <!-- Twitter Card Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="stockportfolio.pro" />
+    <meta
+      name="twitter:description"
+      content="Visualize and manage your stock portfolio with detailed charts and analytics on Stock Portfolio Visualizer."
+    />
+    <meta
+      name="twitter:image"
+      content="https://stockportfolio.pro/images/twitter-dashboard.jpg"
+    />
+
+    <!-- Author and Language Meta Tags -->
+    <meta name="author" content="Stock Portfolio Visualizer" />
+    <meta name="language" content="en" />
+
+    <!-- Favicon -->
+    <link rel="icon" href="/Media/icon.png" />
+
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+  </head>
+  <body class="glass">
+    <div class="waves"><div class="wave w1"></div><div class="wave w2"></div><div class="wave w3"></div></div>
+    <div id="loading-overlay" class="loading-overlay" hidden aria-live="polite" aria-busy="true">
+      <div class="loading-panel"><div class="spinner"></div></div>
+    </div>
+    <header class="navbar" role="banner">
+        <div class="brand">
+          <img src="/Media/icon.png" alt="Logo" class="brand-icon" />
+          <span class="brand-name">stockportfolio.pro</span>
+        </div>
+        <div class="nav-actions">
+          <a class="btn" href="dashboard.html" data-guarded><span class="sticker sm" aria-hidden="true">??</span>Dashboard</a>
+          <a class="btn" href="fundamentals.html" data-guarded><span class="sticker sm" aria-hidden="true">??</span>Fundamentals</a>
+          <a class="btn" href="news.html" data-guarded><span class="sticker sm" aria-hidden="true">??</span>News</a>
+          <a class="btn" href="support.html"><span class="sticker sm" aria-hidden="true">??</span>Support</a>
+          <a class="btn" href="index.html"><span class="sticker sm" aria-hidden="true">??</span>Exit</a>
+          <button id="toggle-headings" class="btn btn-quiet" type="button" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+        </div>
+      </header>
+
+    <main class="container">
+      <section class="hero">
+        <div class="hero-grid">
+          <div>
+            <div class="chips">
+              <div class="chip kpi-card">
+                <span class="kpi-label">Total Value</span>
+                <span class="kpi-value" id="total-value">$0</span>
+                <span class="kpi-delta neutral" id="total-delta">—</span>
+              </div>
+              <div class="chip kpi-card">
+                <span class="kpi-label">Day Change</span>
+                <span class="kpi-value" id="day-change-value">$0</span>
+                <span class="kpi-delta neutral" id="day-change-delta">—</span>
+              </div>
+              <div class="chip kpi-card">
+                <span class="kpi-label">Holdings</span>
+                <span class="kpi-value" id="holdings-count">0</span>
+                <span class="kpi-note neutral" id="holdings-note">Add positions</span>
+              </div>
+              <div class="chip kpi-card">
+                <span class="kpi-label">YTD</span>
+                <span class="kpi-value" id="percentage-change">0%</span>
+                <span class="kpi-note neutral" id="ytd-note">Beating S&amp;P</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card" id="add-stock-card" style="margin-top:12px">
+          <h3 style="margin:0 0 8px 0;color:var(--muted);font-size:14px"><span class="sticker" aria-hidden="true">?</span>Add Stock</h3>
+          <form id="add-stock-form" class="add-form">
+            <div class="field" style="position:relative">
+              <input id="stock-symbol" placeholder="Search company or symbol (e.g., AAPL)" autocomplete="off" />
+              <ul id="search-results" class="dropdown" style="display:none"></ul>
+            </div>
+            <div class="field field-small stepper">
+              <input id="shares" type="number" placeholder="Shares" />
+              <div class="input-stepper" aria-hidden="true">
+                <button type="button" class="step up" title="Increase">?</button>
+                <button type="button" class="step down" title="Decrease">?</button>
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary">Add</button>
+          </form>
+          <div style="color:var(--muted);font-size:12px;margin-top:6px">Tip: Start typing to search</div>
+        </div>
+
+        <!-- Charts row: Portfolio Value and Allocation side-by-side -->
+        <section class="grid" id="charts-row" style="margin-top:14px">
+          <div class="card">
+            <h3 style="margin:0 0 8px 0;color:var(--muted);font-size:14px"><span class="sticker" aria-hidden="true">??</span>Portfolio Value</h3>
+            <div class="controls" id="value-mode-controls">
+              <button class="range btn-primary" data-mode="value">Value</button>
+              <button class="range" data-mode="percent">% Change</button>
+            </div>
+            <div class="controls" id="perf-range-controls">
+              <button class="range" data-range="5D">5D</button>
+              <button class="range btn-primary" data-range="1M">1M</button>
+              <button class="range" data-range="6M">6M</button>
+              <button class="range" data-range="1Y">1Y</button>
+              <button class="range" data-range="5Y">5Y</button>
+              <button class="range" data-range="ALL">All</button>
+            </div>
+            <div id="portfolio-line-chart" class="chart"></div>
+          </div>
+          <div class="card">
+            <h3 style="margin:0 0 8px 0;color:var(--muted);font-size:14px"><span class="sticker" aria-hidden="true">??</span>Allocation</h3>
+            <div id="allocation-donut-chart" class="chart allocation-chart"></div>
+            <ul id="allocation-legend" class="allocation-legend"></ul>
+          </div>
+        </section>
+      </section>
+
+      <!-- Holdings table section (full width) -->
+      <section style="margin-top:14px">
+        <div class="table-card">
+          <h3 style="margin:0 0 8px 0;color:var(--muted);font-size:14px"><span class="sticker" aria-hidden="true">??</span>Holdings</h3>
+          <div class="table-wrap">
+            <table class="holdings-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Symbol</th>
+                  <th class="num">Shares</th>
+                  <th class="num">Purchase</th>
+                  <th class="num">Current</th>
+                  <th class="num">P/L</th>
+                </tr>
+              </thead>
+              <tbody id="stocks-list"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+    <div class="container">
+      <footer class="landing-footer">
+        <a class="footer-brand" href="index.html">c 2025 stockportfolio.pro. All rights reserved.</a>
+        <div class="footer-links">
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+          <a href="support.html">Support</a>
+          <a href="support.html#contact-info">Contact</a>
+        </div>
+      </footer>
+    </div>
+
+    <!-- Include the JavaScript file -->
+    <script src="symbol-lookup.js"></script>
+    <script src="script.js"></script>
+  </body>
+</html>
+
+
+
+
+
+
+

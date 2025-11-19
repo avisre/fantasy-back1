@@ -1,0 +1,142 @@
+  function updatePortfolio(portfolio) {
+    const stocksListElement = document.getElementById('stocks-list');
+    const totalValueElement = document.getElementById('total-value');
+    const gainLossElement = document.getElementById('gain-loss');
+    const percentageChangeElement = document.getElementById('percentage-change');
+    const holdingsCountElement = document.getElementById('holdings-count');
+    const dayChangeElement = document.getElementById('day-change');
+    const gainLossBadge = document.getElementById('gain-loss-badge');
+
+    // Clear the current list
+    stocksListElement.innerHTML = '';
+
+    let totalValue = 0;
+    let totalPurchaseValue = 0;
+    const allocationsMap = {};
+
+    stockAllocationOverTime = []; // Reset stock allocation over time
+    stockSymbols = []; // Reset stock symbols
+
+    portfolio.forEach((stock) => {
+        // capture server-provided name for local display cache
+        if (stock.name && stock.symbol) {
+          symbolNames[stock.symbol] = stock.name;
+        }
+        const stockValue = stock.currentPrice * stock.shares;
+        const purchaseValue = stock.purchasePrice * stock.shares;
+        totalValue += stockValue;
+        totalPurchaseValue += purchaseValue;
+        allocationsMap[stock.symbol] = (allocationsMap[stock.symbol] || 0) + stockValue;
+
+        const increaseValue = (stock.currentPrice - stock.purchasePrice) * stock.shares;
+        const increasePercentage = ((stock.currentPrice - stock.purchasePrice) / stock.purchasePrice * 100).toFixed(2);
+
+        // Collect data for the stacked area chart
+        if (!stockSymbols.includes(stock.symbol)) {
+            stockSymbols.push(stock.symbol);
+        }
+
+        // For demo purposes, generate random data over 10 days
+        const stockData = [];
+        for (let day = 1; day <= 10; day++) {
+            stockData.push({
+                day: day,
+                value: stock.currentPrice * stock.shares * (1 + (Math.random() - 0.5) / 10), // Random fluctuation
+            });
+        }
+        stockAllocationOverTime.push({
+            symbol: stock.symbol,
+            data: stockData,
+        });
+
+        // Determine the color for increase (positive = green, negative = red)
+        let increaseColor = 'black'; // Default color
+        if (increasePercentage > 0) {
+            increaseColor = 'green'; // Positive increase
+        } else if (increasePercentage < 0) {
+            increaseColor = 'red'; // Negative increase
+        }
+
+        // Generate the table row with the color logic
+        const displayName = symbolNames[stock.symbol] ? `${symbolNames[stock.symbol]} (${stock.symbol})` : stock.symbol;
+        const row = `<tr>
+            <td class="stock-cell">${displayName}</td>
+            <td>${stock.shares}</td>
+            <td>${stock.purchasePrice.toFixed(2)}</td>
+            <td>${stock.currentPrice.toFixed(2)}</td>
+            <td style="color: ${increaseColor};">${increaseValue.toFixed(2)} (${increasePercentage}%)</td>
+            <td><button class="delete-btn" onclick="deleteStock('${stock._id}')">Delete</button></td>
+        </tr>`;
+        stocksListElement.innerHTML += row;
+    });
+
+    // For the interactive line chart, track total portfolio value over time
+    portfolioValueOverTime = [];
+    for (let day = 1; day <= 10; day++) {
+        let dayValue = 0;
+        stockAllocationOverTime.forEach(stock => {
+            const stockDayData = stock.data.find(d => d.day === day);
+            dayValue += stockDayData ? stockDayData.value : 0;
+        });
+        portfolioValueOverTime.push({
+            day: day,
+            value: dayValue,
+        });
+    }
+
+    const totalGainLoss = totalValue - totalPurchaseValue;
+    const percentageChange = (totalGainLoss / totalPurchaseValue * 100).toFixed(2);
+
+    totalValueElement.textContent = totalValue.toFixed(2);
+    gainLossElement.textContent = totalGainLoss.toFixed(2);
+    percentageChangeElement.textContent = percentageChange;
+    if (holdingsCountElement) holdingsCountElement.textContent = portfolio.length;
+
+    // Day change from last 2 points
+    if (dayChangeElement) {
+      let dayChange = 0;
+      if (portfolioValueOverTime.length >= 2) {
+        const last = portfolioValueOverTime[portfolioValueOverTime.length - 1].value;
+        const prev = portfolioValueOverTime[portfolioValueOverTime.length - 2].value;
+        dayChange = last - prev;
+      }
+      dayChangeElement.textContent = dayChange.toFixed(2);
+    }
+
+    // Set text color based on the percentage change
+    if (percentageChange > 0) {
+        percentageChangeElement.style.color = 'green'; // Positive change
+    } else if (percentageChange < 0) {
+        percentageChangeElement.style.color = 'red'; // Negative change
+    } else {
+        percentageChangeElement.style.color = 'black'; // No change
+    }
+
+    // Style gain/loss badge
+    if (gainLossBadge) {
+      gainLossBadge.classList.remove('pos', 'neg');
+      if (totalGainLoss > 0) gainLossBadge.classList.add('pos');
+      else if (totalGainLoss < 0) gainLossBadge.classList.add('neg');
+    }
+
+    // persist mapping if any names captured
+    try { localStorage.setItem('symbolNames', JSON.stringify(symbolNames)); } catch {}
+
+    // Make stock name cells clickable to Fundamentals
+    const listEl = document.getElementById('stocks-list');
+    if (listEl && !listEl.dataset.clickable) {
+      listEl.addEventListener('click', (e) => {
+        const cell = e.target.closest('.stock-cell');
+        if (!cell) return;
+        const text = (cell.textContent || '').trim();
+        const m = text.match(/\(([^)]+)\)\s*$/);
+        const sym = (m ? m[1] : text).toUpperCase();
+        if (sym) window.location.href = `fundamentals.html?symbol=${encodeURIComponent(sym)}`;
+      });
+      listEl.dataset.clickable = 'true';
+    }
+
+    // Allocation donut chart
+    const allocations = Object.keys(allocationsMap).map(symbol => ({ symbol, value: allocationsMap[symbol] }));
+    drawAllocationDonutChart(allocations);
+  }

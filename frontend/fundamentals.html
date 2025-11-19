@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>stockportfolio.pro - Fundamentals</title>
+    <link rel="stylesheet" href="styles.css" />
+    <script src="https://d3js.org/d3.v7.min.js"></script>
+    <script id="auth-gate">if(!localStorage.getItem('token')){ location.href = 'login.html?next=' + encodeURIComponent('fundamentals.html' + (location.search||'')); }</script>
+  </head>
+  <body class="glass">
+    <div class="waves"><div class="wave w1"></div><div class="wave w2"></div><div class="wave w3"></div></div>
+    <div id="loading-overlay" class="loading-overlay" hidden aria-live="polite" aria-busy="true">
+      <div class="loading-panel"><div class="spinner"></div></div>
+    </div>
+    <header class="navbar" role="banner">
+        <div class="brand">
+          <img src="/Media/icon.png" alt="Logo" class="brand-icon" />
+          <span class="brand-name">stockportfolio.pro</span>
+        </div>
+        <div class="nav-actions">
+          <a class="btn" href="dashboard.html" data-guarded><span class="sticker sm" aria-hidden="true">??</span>Dashboard</a>
+          <a class="btn" href="fundamentals.html" data-guarded><span class="sticker sm" aria-hidden="true">??</span>Fundamentals</a>
+          <a class="btn" href="news.html" data-guarded><span class="sticker sm" aria-hidden="true">??</span>News</a>
+          <a class="btn" href="support.html"><span class="sticker sm" aria-hidden="true">??</span>Support</a>
+          <a class="btn" href="index.html"><span class="sticker sm" aria-hidden="true">??</span>Exit</a>
+          <button id="toggle-headings" class="btn btn-quiet" type="button" aria-label="Toggle navigation" aria-expanded="false">&#9776;</button>
+        </div>
+      </header>
+    <div class="container">
+      <section class="card" id="fundamentals-search-card" style="margin-top:10px">
+        <h3>Find a Stock</h3>
+        <div class="controls">
+          <div class="field" style="position:relative; max-width:420px; width:100%">
+            <input id="symbol-input" class="apikey" placeholder="Search by name or symbol (e.g., AAPL)" autocomplete="off" />
+            <ul id="symbol-results" class="dropdown" style="display:none"></ul>
+          </div>
+          <button id="go-btn" class="btn btn-primary" type="button">Go</button>
+        </div>
+      </section>
+
+      <section class="grid" style="margin-top:12px">
+        <div class="card">
+          <h3><span class="sticker" aria-hidden="true">??</span>Quote</h3>
+          <div id="quote" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px"></div>
+          <div style="margin-top:8px">
+            <a id="fundamentals-link" class="btn" href="#price-chart">Explore Price Chart</a>
+          </div>
+        </div>
+        <div class="card">
+          <h3><span class="sticker" aria-hidden="true">??</span>Price</h3>
+          <div class="controls" id="price-mode-controls">
+            <button class="range btn-primary" data-mode="price">Price</button>
+            <button class="range" data-mode="pe">PE Ratio</button>
+          </div>
+          <div class="controls" id="price-range-controls">
+            <button class="range" data-range="1M">1M</button>
+            <button class="range" data-range="6M">6M</button>
+            <button class="range btn-primary" data-range="1Y">1Yr</button>
+            <button class="range" data-range="3Y">3Yr</button>
+            <button class="range" data-range="5Y">5Yr</button>
+            <button class="range" data-range="10Y">10Yr</button>
+            <button class="range" data-range="MAX">Max</button>
+          </div>
+          <div id="price-chart" class="chart"></div>
+        </div>
+      </section>
+
+      <section id="fundamentals" class="card" style="margin-top:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div>
+            <div style="color:var(--muted);font-size:12px">Fundamentals</div>
+            <h3><span class="sticker" aria-hidden="true">??</span>Overview &amp; Charts</h3>
+          </div>
+          <div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap">
+            <div class="controls" id="basis-controls">
+              <button class="range btn-primary" data-basis="annual">Annual</button>
+              <button class="range" data-basis="quarterly">Quarterly</button>
+            </div>
+            <div class="controls" id="unit-controls" title="Scale numbers">
+              <button class="range btn-primary" data-unit="auto">Auto</button>
+              <button class="range" data-unit="million">Millions</button>
+              <button class="range" data-unit="billion">Billions</button>
+            </div>
+          </div>
+        </div>
+        <div id="ratios" style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-top:10px"></div>
+      </section>
+
+      <section class="grid" style="margin-top:12px">
+        <div class="card"><h3><span class="sticker" aria-hidden="true">??</span>Revenue</h3><div id="rev-chart" class="chart"></div></div>
+        <div class="card"><h3><span class="sticker" aria-hidden="true">??</span>Net Income</h3><div id="ni-chart" class="chart"></div></div>
+      </section>
+      <section class="grid" style="margin-top:12px">
+        <div class="card"><h3><span class="sticker" aria-hidden="true">??</span>Operating Cash Flow</h3><div id="ocf-chart" class="chart"></div></div>
+        <div class="card"><h3><span class="sticker" aria-hidden="true">??</span>Assets / Liabilities</h3><div id="balance-chart" class="chart"></div></div>
+      </section>
+
+      <section class="grid" style="margin-top:12px">
+        <div class="card"><h3><span class="sticker" aria-hidden="true">??</span>Cash on Hand / Net Debt</h3><div id="cashnet-chart" class="chart"></div></div>
+        <div class="card"><h3><span class="sticker" aria-hidden="true">??</span>Shares Outstanding</h3><div id="shares-chart" class="chart"></div></div>
+      </section>
+
+      <section class="card" style="margin-top:12px">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap">
+          <div class="fin-topbar">
+            <span class="fin-format">Financials</span>
+          </div>
+          <div class="fin-tabs">
+            <button class="tab active" data-tab="income">Income</button>
+            <button class="tab" data-tab="balance">Balance</button>
+            <button class="tab" data-tab="cash">Cash Flow</button>
+            <button class="tab" data-tab="ratios">Ratios</button>
+          </div>
+        </div>
+        <div class="table-wrap" style="margin-top:10px">
+          <table>
+            <thead id="tbl-head"></thead>
+            <tbody id="tbl-body"></tbody>
+          </table>
+        </div>
+      </section>
+    </div>
+    <div class="container">
+      <footer class="landing-footer">
+        <a class="footer-brand" href="index.html">c 2025 stockportfolio.pro. All rights reserved.</a>
+        <div class="footer-links">
+          <a href="privacy.html">Privacy</a>
+          <a href="terms.html">Terms</a>
+          <a href="support.html">Support</a>
+          <a href="support.html#contact-info">Contact</a>
+        </div>
+      </footer>
+    </div>
+    <script src="symbol-lookup.js"></script>
+    <script src="script.js"></script>
+    <script src="fundamentals.js"></script>
+    <script>
+      document.addEventListener('DOMContentLoaded', ()=>{
+        const a = document.getElementById('fundamentals-link');
+        if (a) a.textContent = 'View Price & PE Chart';
+      });
+    </script>
+  </body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
